@@ -34,6 +34,9 @@ SELECT * FROM Students ORDER BY LastName ASC;
 SELECT * FROM Students ORDER BY City ASC, Age DESC;
 
 
+-- different example of what the syntax of a left join is
+-- SELECT from students the name, and from cars the model. From Students table, do a left-join of cars onto students id where the cars match the students id. This then shows us what student (name) has what type of car
+
 -- ### JOINS AND WHAT NOT ### --
 Example tables:
 Students:
@@ -86,4 +89,24 @@ Alex   Math
 Alex   Science
 Sam    History
 NULL   geography
+
+
+-- insert stuff
+INSERT INTO tblAlbum(artistName, albumTitle, genre)
+VALUES ('Journey','Raised on Radio', 'Rock');
+
+-> result
+artistName albumTitle       genre
+Journey    Raised on Radio  Rock
+
+-- it is permissible to add values without filling every field
+INSERT INTO tblAlbum(artistName, albumTitle)
+VALUES ('Eikona', 'Hymns')
+
+
+-- backup insertion (triggered whenever a user enters a new record into db)
+INSERT INTO tblBackup(artist, albumTitle, genre)
+SELECT artist, albumTitle, genre
+FROM csuromer
+WHERE tblBakcup.CustomerID = customer.customerID;
 
