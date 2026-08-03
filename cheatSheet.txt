@@ -1,0 +1,89 @@
+-- this is a notes sheet for my sql endeavors from the course CS107 Database fundamentals from study.com
+-- this is a comment
+-- show everything from table students
+SELECT * FROM Students;
+
+-- show specific columns
+SELECT FirstName, Age FROM Students;
+
+-- show unique values only (no dupes)
+SELECT DISTINCT City FROM Students;
+
+-- Show top 5
+SELECT * FROM Students LIMIT 5;
+
+-- multiple conditions
+SELECT * FROM Studnets WHERE Age > 20 AND City = 'NYC';
+
+-- in a list
+SELECT * FROM Students WHERE City IN ('NYC', 'LA', 'CHI');
+
+-- range
+SELECT * FROM Students WHERE Age BETWEEN 18 AND 25;
+
+-- Pattern match
+SELECT * FROM Students WHERE FirstName LIKE 'A%';
+	
+-- missing data
+SELECT * FROM Students WHERE Phone IS NULL;
+
+-- A to Z sort
+SELECT * FROM Students ORDER BY LastName ASC;
+
+-- Sort by multiple columns
+SELECT * FROM Students ORDER BY City ASC, Age DESC;
+
+
+-- ### JOINS AND WHAT NOT ### --
+Example tables:
+Students:
+ID   Name
+1    Alex
+2    Sam
+3    Jordan 
+
+Enrollments
+StudentId    Class
+1            Math
+1            Science
+2            History
+
+-- inner join
+SELECT Students.Name, Enrollments.Class 
+FROM Students
+INNER JOIN Enrollments ON Students.ID = Enrollments.StudentID;
+
+Result
+Name    Class
+Alex    Math
+Alex    Science
+Sam     History
+
+
+-- Left Join example shows everything shows every name
+
+SELECT Students.Name, Enrollments.Class
+FROM Students
+LEFT JOIN Enrollments ON Students.ID = Enrollments.StudentId;
+
+Result 
+
+Name    class
+Alex    Science
+Sam     History
+Jordan  Null
+
+
+-- right Join example
+-- shows everything from enrollments.class's
+SELECT Students.Name, Enrollments.Class
+FROM Students
+RIGHT JOIN Enrollments ON Students.ID Enrollments.StudentID;
+
+Result
+Name   class
+Alex   Math
+Alex   Science
+Sam    History
+NULL   geography
+
