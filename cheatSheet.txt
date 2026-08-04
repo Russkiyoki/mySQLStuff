@@ -110,3 +110,5 @@ SELECT artist, albumTitle, genre
 FROM csuromer
 WHERE tblBakcup.CustomerID = customer.customerID;
 
+-- drop column deletes the entire columns and field
+ALTER TABLE students DROP COLUMN studentID;
