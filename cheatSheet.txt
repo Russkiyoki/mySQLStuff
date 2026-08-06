@@ -112,3 +112,63 @@ WHERE tblBakcup.CustomerID = customer.customerID;
 
 -- drop column deletes the entire columns and field
 ALTER TABLE students DROP COLUMN studentID;
+
+-- a database lock is a mech used to control access to shared data items.
+There are 2 main categories, read and write locks. Read locks are shareable, 
+while write locks are not. Meaning that no other user can get a read lock while a 
+write lock is active. 
+
+-- there are 4 different levels of transaction isolation.
+-- 1. READ UNCOMMITTED
+	you can read the data in another transaction that is happening right now
+	even if it hasn't been saved (committed) yet. This is problematic because
+	the other transaction changed its mind and reverts, and you already
+	made a decision based on data that never really existed. Super fast, very problematic
+-- 2. READ COMMITTED 
+	You read committed/saved data. At this level, a Non-repeatable read can happen where 
+	you read the row, and later in the same transaction it changed because someone committed
+	something new to it, like an update (not an insert). You get 2 different answers for the same read
+-- 3. REPEATABLE READ
+	Gurantees that when you read a specific row, that row will look exactly the same for
+	the rest of the transaction no matter who changes it. At this level, Phantom reads can happen where
+	you run a query to read rows, and you get 10, then later in the same transaction
+	you get 15. Rows have been commited while you were in the same transaction. Thats where those
+	phantoms come from. 
+-- 4. SERIALIZIABLE 
+	this level is most secure but is still prone to "paradoxal math". Formally spoken: A Serialization
+	Anomaly means the databse ended up in a state the logically does not make sense. for example
+		You are trying to sell product A and B, but you can only buy product B if A is in stock. (matching set)
+		Transaction 1, buys the last product A and stock goes to 0. Transaction 2 buys prod B (error)
+		But if transaction 2 starts first, it sees that prod A is in stock and so it can buy prod B too.
+		But before it finishes, transaction 1 starts and finishes. The stock is now 0 for stock A. 
+		Therefore it is paradoxical.    
+
+-- Two Phased Locking (2pl)
+	Is a locking mech that gurantees serializability in transaction. A transaction is serializable if the
+	execution schedule of the transaction is not interrupted by another schedule from a different
+	transaction. 
+
+-- Deadlock situation
+	A Deadlock situation is when t1 (transaction 1) has something that t2 wants, and wants what t2 has
+	but because t1 has a lock on A, it cant close out A until the entire T is complete which it requires
+	B for, which t2 is holding. The converse is true. Therefore T1 and T2 cannot finish their transaction. 
+	2pl DOES NOT ensure the problem of deadlocks is removed.
+
+-- Conservative Two Phased Locking (c2pl)
+	This scheme is aimed to prevent deadlock situations, by first aquiring all of the locks before
+	starting the transaction.
+
+--# for more professional environments, each transaction will have many querries and must all be executed
+	for integrity of the database Each of these transaction must display ACID
+-- A : Atomicity
+	Atomicity requires that all operations related to that transaction are all succesfully completed or aborted.
+-- C : Consistency
+	The data entered by the transaction must be consistent with the rest of the data, and if integrity
+	is violated, the entire transaction is aborted. 
+-- I : Isolation 
+	Isolation refers to a particular transaction and its related tasks are executed without interruption.
+	Once a T starts, it cannot be used by another T until the first once finishes. 
+-- D : Durability
+	Durability ensures that once a transaction has been completed, a system failure cannot cause that T to 
+	be reversed or lost. 
+
