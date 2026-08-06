@@ -172,3 +172,11 @@ write lock is active.
 	Durability ensures that once a transaction has been completed, a system failure cannot cause that T to 
 	be reversed or lost. 
 
+-- Relational databases vs non-relational
+	Sql, Mysql, sqlite vs nosql 
+	Relational databases are strict and organized. It is good when you need to ask complex questions
+	such as " Show me all mechanics who are available on tuesday, have been working for longer than
+	half a year, and are okay with working overtime." 
+	NoSql is like throwing a box of data into a cupboard and closing it quick. It is insanely fast
+	but hard to ask those complex questions. It is good for self contained info, such as just 
+	storing customer info and needing to get read. 
