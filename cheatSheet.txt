@@ -180,3 +180,11 @@ write lock is active.
 	NoSql is like throwing a box of data into a cupboard and closing it quick. It is insanely fast
 	but hard to ask those complex questions. It is good for self contained info, such as just 
 	storing customer info and needing to get read. 
+
+-- Relational databases vs Hiearchal
+	A Hierarchical database is a set of tables organized in a parent-child relation. E.g.:
+		Pavement improvement > (Reconstruction, Maintenance > ( Routine, corrective, preventive), Rehab)
+	A HDB stores info based on its relationship to the information around it, like a tree. This makes
+	searching very fast but insertion not as fast. The opposite is true for Relational Databases. 
+
+
