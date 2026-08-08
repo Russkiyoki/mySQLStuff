@@ -188,3 +188,24 @@ write lock is active.
 	searching very fast but insertion not as fast. The opposite is true for Relational Databases. 
 
 
+-- Normalization
+	1NF's requirements is that every field must contain a single value for each field. Arrays are
+	not allowed for a field, or multiple entries for fields like phone numbers. It also must not have
+	duplicate fields such as phone1 phone2 phone3.
+
+	2NF's requirements is that every field that is a non-key value must depend on the whole candidate key
+	not just a part of it. (Wiki has a great explanation of this). But basically, every field that is not
+	part of the composite key must rely on both. Grade relies on both StudentID and CourseID, Coursename
+	does not.
+ 
+	3NF's requirements is that every key must depend on the primary key ONLY. Ensure that there is no
+	transitive properties at play. If B relies on A, and C relies on B, then you are not in 3NF. For 
+	example, SupplierID is directly linked to ItemID, but NxtDelivery is dependent on supplierID. This
+	is that transitive hogus bogus.
+
+	Normalization is important, it leads to a clean and well maintained database. For example, not having
+	duplicates ensures that there would not be update anomalies. If there are multiple identical fields,
+	then updating one would not ensure that the other is updated. Then you have instances of the same
+	variable which are now different values. At first, this may be complicated to wrap your head around, 
+	but practising with DeepSeek normalized and not normalized, or whatever AI would help. I (roughly)
+	got it down within 3 hours. 
