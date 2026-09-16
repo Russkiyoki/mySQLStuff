@@ -209,3 +209,40 @@ write lock is active.
 	variable which are now different values. At first, this may be complicated to wrap your head around, 
 	but practising with DeepSeek normalized and not normalized, or whatever AI would help. I (roughly)
 	got it down within 3 hours. 
+
+The LIKE operator is a very useful tool when searching records for a pattern
+	instead of an exact value. If we want to search records with a FirstName
+	that starts with the letter 'E', we can use the LIKE operator in the
+	SELECT statement.
+		SELECT * FROM Actors WHERE FirstName LIKE 'E%';
+	If we want to search for a pattern that has more letters:
+		SELECT * FROM Actors WHERE LastName LIKE '%an%';
+
+If we want to search for multiple values in our WHERE clause, we can use the
+	IN operator in the SELECT statement as follows:
+		SELECT * FROM Actors WHERE LastName in('Rudd','Robbie');
+
+If we want to search for values within a range, we can use the BETWEEN op
+	SELECT * FROM Actors WHERE Age BETWEEEN '25' and '39';
+this will return all actors ages including 25 through 39 including 39
+
+Dealing with null values is something that you have to look out for, and 
+	we can adjust for null values by using ISNULL which replaces a null value
+	with a different value.
+		ISNULL(expression, alternate_value)
+	The expression represent the value / field we are looking at, and the
+	alternate value is the value we will use if value / field is NULL.
+Examples:
+	ISNULL comes in handy in math to avoid dividing by 0 or logisitical 
+	errors. Below is an example where we calculate the cost of items
+	in the inventory. If we dont ahve the item on  hand, the value is null.
+	To make the query run correctly we will replace that null with a zero.
+		SELECT itemName, cost * ISNULL(qty,0) FROM tblinventory;
+	Or another example is if we want to add up amounts for paycodes for 
+	payrolls, and some pay codes may never have been used in a quarter.
+		SELECT q1.payCode, q2.payCode
+		ISNULL(q1.wageAmount, 0) + ISNULL(q2.wageAmount, 0)
+		FROM tblQuarterlyWage;
+	Final example is getting an average of ratings on music albums. If
+	a rating is null, we will replace it with 50 to not skew it any way.
+		SELECT AVG(ISNULL(rating,50)) FROM tblAlbum;
