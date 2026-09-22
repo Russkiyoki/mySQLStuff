@@ -246,3 +246,22 @@ Examples:
 	Final example is getting an average of ratings on music albums. If
 	a rating is null, we will replace it with 50 to not skew it any way.
 		SELECT AVG(ISNULL(rating,50)) FROM tblAlbum;
+
+CRUD commands dont take effect immediately, and enter the data in a 
+	temporary state. You would need to commit them to take effect.
+INSERT INTO Lessons VALUES('LS004', 'Service Engineering');
+COMMIT;
+
+SAVEPOINT command is used to temporarily save a transaction that you 
+	can roll back whenever necessary
+INSERT INTO Lessons VALUES('LS004','Reliability Engineering');
+SAVEPOINT A;
+
+you could then do another transaction and 
+SAVEPOINT B;
+
+The ROLLBACK command restores the database to the last commited state
+and can be used with the SAVEPOINT command to jump to that savepoint.
+
+	ROLLBACK TO A;
+
