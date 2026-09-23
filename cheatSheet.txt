@@ -246,6 +246,24 @@ Examples:
 	Final example is getting an average of ratings on music albums. If
 	a rating is null, we will replace it with 50 to not skew it any way.
 		SELECT AVG(ISNULL(rating,50)) FROM tblAlbum;
+NVL is also used, and works similarly but only on the Oracle databases.
+	NVL(nullValue, desiredValue);
+It works on everything except objects
+	SELECT NVL(TO_CHAR(Rating), 'Unrated') FROM tblAlbum;
+
+To execute specific instruction upon a specific condition, we can use CASE
+Using case in actual sql is better since you wont have to pre-emptively run
+through all of the results in order to achieve your desired outcome. 
+
+	SELECT artistID, genreID,
+		CASE genreID
+			WHEN 1 THEN 'Rock'
+			WHEN 2 THEN 'Classical'
+			ELSE 'Some other genre'
+		END AS "Genre Classification"
+	FROM tblArtist;
+To explain the code from above, if the genreID is 1, 'Rock' will be
+	displayed, if 2 then 'Classical', else the other one.
 
 CRUD commands dont take effect immediately, and enter the data in a 
 	temporary state. You would need to commit them to take effect.
@@ -264,4 +282,50 @@ The ROLLBACK command restores the database to the last commited state
 and can be used with the SAVEPOINT command to jump to that savepoint.
 
 	ROLLBACK TO A;
+
+TRUNCATE vs DROP
+Truncate is used to delete all rows from a table. It is efficient because
+	it performs a drop and a re-add of the table which is faster than 
+	removing data row-by-row.
+The DELETE statment will only delete rows base don  agiven condition in an
+	SQL WHERE clause, but it doesnt free up any of that space. This leads
+	to bloat and potentially huge files. Another important feature is that
+	it will reset auto-numbered / sequential value fields. If ID is set up
+	for AUTO-INCREMENT, all the truncated will reset the next value. 
+
+When Databases get really big, it could be hard to access specific info,
+	in such scenarios, creating an SQL View is handy. A View allows you
+	to see certain data points while hidinng others by creating a virtual
+	table. This also comes in handy when you want some information to be
+	easily accessible while hiding others.
+For Example:
+	Table tblCustomer has DOB, address, phone number, email, and credit card
+	information. You could create a View that only shows the customers
+	whos DOB is within the current month but hide their actual DOB and 
+	everything else. 
+Syntax:
+	CREATE VIEW view_name AS 
+	SELECT customerName, customerEmail 
+	FROM tblCustomer
+	WHERE condition;
+Solid Example:
+	CREATE VIEW Employee_View AS
+	SELECT empID, empFullName, empJobTitle
+	FROM tblEmployee
+	WHERE empID > 0;
+
+The syntax for dropping a view is 
+	DROP VIEW Employee_View;
+Alternatively, to be more safe you could use IF EXISTS to make sure
+	you arent trying to drop a view that isnt in the DB
+		DROP VIEW IF EXISTS
+			Employee_View;
+
+Database Index Types:
+
+A B+ tree database index is a balanced tree with many branches, when 
+	you complete a search the entire DB index is scanned. This is great
+	for complex searches.
+B- tree is great for simple queries since it is self balancing with only
+	a few branches. 
 
