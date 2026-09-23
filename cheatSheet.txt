@@ -328,4 +328,28 @@ A B+ tree database index is a balanced tree with many branches, when
 	for complex searches.
 B- tree is great for simple queries since it is self balancing with only
 	a few branches. 
+R- tree database index is used for spatial, or location and data. An ex
+	is using a GPS.
+
+Categories of database indexes:
+
+A clustered index are indexes where the order of rows is the same as
+	the order within the indexed rows. The records are physically
+	established within the db table. You can only have one clustered
+	index per table, but you could also have more non-clustered indexes.
+	This is an actual sorted index.
+A non-clustered index does not indicate how the records are arranged
+	or ordered within the table. These indexes are in a different table
+	and you can have many non-clustered indexes created for one table.
+	A way to look a non-clustered index,"row 5 is over there" instead
+	of actually sorting it. 
+
+Index Syntax
+	CREATE INDEX nameOfIndex
+	ON tableName (nameOfColumn)
+
+a unique index ensures that duplicate values arent entered. Use UNIQUE
+	to specify that the index is unique.
+	CREATE UNIQUE INDEX name_of_index
+	ON name_of_table (column1, column2, ...);
 
