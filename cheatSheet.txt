@@ -353,3 +353,75 @@ a unique index ensures that duplicate values arent entered. Use UNIQUE
 	CREATE UNIQUE INDEX name_of_index
 	ON name_of_table (column1, column2, ...);
 
+Constraints:
+	A Constraint is a simple rule that can be created to prevent 
+	unwanted data from being entered into the database. 
+	some examples:
+		NOT NULL
+		UNIQUE
+		CHECK: this constraint ensures that the value entered is
+			within the permissble range of values.
+		DEFAULT: this constraint provides a default value if none
+			are given.
+		PRIMARY KEY
+		FOREIGN KEY
+
+Now if a value is removed which is used by other records, it would
+	be problematic. Fortunately for us, sql has things that help us.
+
+ON DELETE RESTRICT: this setting prevents a record in the original
+	table to eb deleted if the valu eo fthe primary key of the 
+	deleted record exists as the value of one or more foreign keys.
+ON DELETE CASCADE: this option will ensure the automatic deletion of
+	all records in the original table with the value of the foreign
+	key equal to the deleted primary key. 
+ON DELETE SET NULL: this option sets the value of all foreign keys 
+	that match the primary key to NULL
+ON DELETE SET DEFAULT: this option the value of all foreign keys
+	that match the value of the deleted primary key will be set
+	to the default value. 
+
+Temporary Tables
+A temporary table is a table that is used for only a limited time 
+	and is dropped when the user disconnects from the DB.
+Syntax
+	CREATE TEMPORARY TABLE tokens (
+		customerID INT PRIMARY KEY,
+		tokenCount INT;
+	);
+in order to use this table, you need to insert data
+we will assume that customer 942 is logged in
+
+	INSERT INTO token (customerID, token Count)
+	SELECT customerID, tokenCount
+	FROM customer
+	WHERE customerID = 942;
+
+another example we will create a temp table for the top 10 gamers
+	by their score. gs is the game_scores table, while g is the 
+	gamer table.
+
+CREATE TEMPORARY TABLE gamer_top_scores
+	SELECT gs.gamerID,
+	g.gamerName,
+	MAX(gs.score)
+	FROM game_scores gs
+	INNER JOIN gamer g ON g.gamerID = gs.gamerID
+	GROUP BY g.gamerID
+	ORDER BY score DESC
+	LIMIT 10;
+
+Over time as you get more and more users, you might need to change
+something in your table. For example, if you need to add a new field
+	ALTER TABLE supplier ADD contact_email nchar(50);
+but if you were to need the email to be not null, you would be adding
+that new field to all records which would be null for all. something
+you could do to fix that issue is to create a default email.
+	ALTER TABLE supplier ADD contact_email nchar(50)
+		NOT NULL DEFAULT 'user@study.com';
+if the size of the email needed to be changed, you could do
+	ALTER TABLE supplier MODIFY COLUMN contact_email nchar(60);
+
+if you needed to get rid of a field, and it is a primary key field
+	ALTER TABLE supplier DROP PRIMARY KEY;
+	ALTER TABLE supplier DROP supplierID;
