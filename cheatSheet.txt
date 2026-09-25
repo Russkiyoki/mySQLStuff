@@ -425,3 +425,163 @@ if the size of the email needed to be changed, you could do
 if you needed to get rid of a field, and it is a primary key field
 	ALTER TABLE supplier DROP PRIMARY KEY;
 	ALTER TABLE supplier DROP supplierID;
+
+To combine data from 2 tables that may have the same person such as
+	student or customer, you could use a union 
+	SELECT * FROM undergrad_college
+	UNION
+	SELECT * FROM business_college
+	WHERE studentID NOT IN 
+	(SELECT studentID FROM undergrad_college);
+This code grabs rows from undergrad_college table first, and then
+	grabs students from business_college which dont dont have their
+	student id in the first table. In essence, making sure that we
+	dont grab the same student twice.
+
+An example of a join while we are on this topic would be something like
+	we have 2 tables, the first one is alumni and has fields alum_id and 
+	alumni_name. The second table has alum_id and amount. If we want to 
+	see how much each alumni has given to the school and who, we can run
+	SELECT alumni_name, amount
+	FROM alumni JOIN alumni_giving
+	ON alum_id = alum_id;
+
+Rollup vs Cube for GROUP BY
+Before i explain rollup and cube, it would be ideal to understand groupby.
+	GROUP BY is really good for reporting info, such as sales by region
+	or enrollment by department. 
+	SELECT year, major, COUNT(*) AS students
+	FROM enrollments
+	GROUP BY year, major;
+this would return one row per combination of year and major. 
+year major students
+24	biology 30
+24	history 20
+25 	biology	25
+25	history	15
+
+ROLLUP treats the columns as a hierarchy and adds the subtotals as it
+	collapses from right to left. 
+SELECT year, major, COUNT(*) AS students
+FROM enrollments
+GROUP BY ROLLUP(year, major);
+
+after the 2nd row from the above example, you would have a line like
+24 NULL 50
+showing the subtotal of 50 for the year of 24's total students.
+then at the very end, you would see a line like
+NULL NULL 90 
+which is the grand total. 
+
+Cube basically does the same, but every single combination possible
+24 null 50
+25 null 40
+null biology 50
+null history 35
+null null 90
+
+the number of grouping sets for ROLLUP is n+1 while cube is 2^n
+
+
+Alternatively, you could use GROUPING SETS which is the most flexible
+	of the three. it lets you explicitly list which grouping you want.
+
+SELECT year, major, COUNT(*) AS students
+FROM enrollments
+GROUP BY GROUPING SETS(
+	(year, major),
+	(year),
+	(major),
+	()
+);
+
+result: 
+year | major      | students
+-----|------------|---------
+2024 | Biology    | 30      <-- from (year, major)
+2024 | History    | 20
+2025 | Biology    | 25
+2025 | History    | 15
+2024 | NULL       | 50      <-- from (year)
+2025 | NULL       | 40
+NULL | Biology    | 55      <-- from (major)
+NULL | History    | 35
+NULL | NULL       | 90      <-- from ()
+
+Subqueries are very powerful and you could even create a table using them
+Assume that we have all soccer players of a district, and one club wants
+to seperate the female players in division U16 to their own table. 
+	CREATE TABLE female_player_u16 AS 
+	SELECT * FROM PLAYER
+	WHERE player_gender='f' AND player_division='U16';
+
+if we need to add players that are women from u14
+	
+	INSERT INTO female_player_u16 
+	SELECT * FROM PLAYER
+	WHERE player_gender='f' AND player_division='u14';
+
+if we need to update someones phone number
+	UPDATE female_player_u16
+	SET female_player_u16.player_phone_number = (SELECT player_phone_number
+		FROM PLAYER
+		WHERE player_first_name = 'Gissele' AND player_last_name = 'Brown')
+	WHERE female_player_u16.player_first_name = 'Emily' AND 
+		female_player_u16.player_last_name = 'johns';
+
+
+Multi table inserts
+Say we have a student, and we need to put his info in multiple tables 
+	such as MAcademic, MHostel, and also Student. Assuming we properly
+	inserted him into the Student table, we could run the following
+	to add him to the other tables. The following example can be used
+	with oracle sql. 
+
+INSERT ALL
+	INTO MAcademic (StudentID, FirstName, LastName, ContactNo, DOB)
+	VALUES (StudentID, FirstName, LastName, ContactNo, DOB)
+	INTO MHostel(StudentID, FirstName, LastName, ContactNo)
+	VALUES(StudentID, FirstName, LastName, ContactNo)
+	SELECT StudentID, FirstName, LastName, ContactNo, DOB
+	FROM Student WHERE StudentID = 'newID';
+
+PIVOT and UNPIVOT
+pivoting tables is cool because knowing how to format information makes
+	it easier to read / access. say we have a table like this
+student | subject | score
+--------|---------|------
+Russ    | Math    | 90
+Russ    | Science | 85
+Russ    | History | 78
+
+If we only want to read what russ is up to, we would need the following
+student | Math | Science | History
+--------|------|---------|--------
+Russ    | 90   | 85      | 78
+
+So a pivot makes the table go from being long, to wide. unpivot does the
+	opposite. In other words, rows become columns for a pivot, and 
+	an unpivot makes the columns become rows. 
+In regular sql or mysql, there is no PIVOT or UNPIVOT built in, that is
+	a feature in MSsql and oracle SQL.
+SELECT * FROM scores
+	PIVOT (MAX(score) FOR subject IN (Math, Science, History));
+
+The sql way is to create conditional aggregation.
+SELECT student, 
+	MAX(CASE WHEN subject = 'Math' THEN score END AS Math, 
+	MAX(CASE WHEN subject = 'Science' THEN score END) AS Science,
+	MAX(CASE WHEN subject = 'History' THEN score END) AS History
+FROM scores
+GROUP BY student;
+
+to unpivot
+SELECT student, 'Math' AS subject, Math AS score FROM wide_scores
+UNION ALL
+SELECT student, 'Science', Science FROM wide_scores
+UNION ALL 
+SELECT student, 'History', History FROM wide_scores;
+
+sql server / oracle
+SELECT * FROM wide_scores
+UNPIVOT (score FOR subject IN (Math, Science, History));
