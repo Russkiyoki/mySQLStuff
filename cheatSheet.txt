@@ -585,3 +585,60 @@ SELECT student, 'History', History FROM wide_scores;
 sql server / oracle
 SELECT * FROM wide_scores
 UNPIVOT (score FOR subject IN (Math, Science, History));
+
+REGEX STUFF
+we can do regex stuff in sql 
+suppose we need to list all words that begin with A and B
+SELECT * FROM Dictionary WHERE UPPER(Word) LIKE 'A%' OR UPPER(Word)
+	LIKE 'B%';
+Thats what a regex operation without regex would look like
+how about now with regex?
+SELECT * FROM Dictionary WHERE UPPER(Word) REGEXP '^(A|B)';
+
+DATABASE SECURITY STUFF
+So Say you get Database Admin role, congratulations!
+With that position, you would need to give roles to others who access
+	your database. Here is how to do that
+	GRANT type_of_privelege 
+	ON object
+	TO {user | role}
+There are three types of priveleges:
+	ALL (full access, should be for admin only
+	SELECT (querying and reading the table)
+	EXECUTE (used for running stored procedures)
+Here is a full example
+	GRANT SELECT
+	ON tblCustomers
+	TO 'Russ';
+In order to revoke access, you could do
+	REVOKE SELECT 
+	ON tblCustomers
+	FROM 'Russ';
+
+The grant method has an option for roles, it simplifies the process
+	if you have a support staff and want to allow them to play around
+	with a test database. 
+		CREATE ROLE qa_tester
+		GRANT CREATE TABLE TO qa_tester
+		GRANT qa_tester TO 'Russ';
+	and if that support staff runs out of funds and dismantles, you 
+	can revoke access or that role.
+		DROP ROLE qa_tester;
+
+STORED PROCEDURES
+A stored procedure is a small SQL program that executes commands such
+	as updating or querying. This way, you minimize giving access to
+	the direct table. If you want someone to just insert records, instead
+	of giving them UPDATE rights, you can give them access to invoke a
+	stored procedure for that. 
+CREATE PROCEDURE spGetCustomers
+	AS
+		BEGIN
+			DECLARE @customerName Varchar(100)
+			PRINT 'Customers'
+				SET @customerName = 'Russ'
+			PRINT @customerName;
+		END;
+	GO 
+this procedure creates a new variable customerName and sets it to Russ.
+
