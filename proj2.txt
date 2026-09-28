@@ -1,0 +1,62 @@
+-- Elisey Voichishin
+-- 9/28/26
+-- CS204 Database Programming
+
+-- List all products showing product name, categoryID, price, and quantity
+-- on hand. 
+SELECT ProductName, CategoryID, UnitPrice, Qoh FROM Products;
+
+-- Retrieve all products that are out of stock ( quantity = 0)
+SELECT * FROM Products WHERE Qoh = 0;
+
+-- Display products priced between $100 and $500
+SELECT * FROM Products WHERE UnitPrice > 100 AND UnitPrice < 500;
+
+-- Show the total number of products group by category
+-- I am selecting the categoryName and putting a count on each record
+-- and when it get printed out it will show me category and then
+-- totalProducts, and it will print out totals per categoryName. 
+SELECT CategoryName, COUNT(*) AS totalProducts FROM Products GROUP BY CategoryName; 
+
+-- Print average price of products per category using GROUP BY
+SELECT CategoryName, AVG(UnitPrice) AS avgPrice FROM Products GROUP BY CategoryName;
+
+-- PART 2
+
+-- Join Products and Suppliers to list product Name, supplier name,
+-- and contact details.
+SELECT Products.ProductName, Suppliers.SupplierName, Suppliers.Phone, Suppliers.Email
+FROM Products 
+INNER JOIN Suppliers ON Suppliers.SupplierID = Product.SupplierID;
+
+-- join products categories and Orders to display productName, categoryName,
+-- quantitySold, and date of sale
+-- In my original project I had four another table of OrderDetails to adhere to 3nf
+
+SELECT Products.ProductName, Categories.CategoryName, OrderDetails.Quantity, Orders.OrderDate 
+FROM Orders
+INNER JOIN OrderDetails ON Orders.OrderID = OrderDetails.OrderID
+INNER JOIN Products ON OrderDetails.ProductID = Products.ProductID
+INNER JOIN Categories ON Products.CategoryID = Categories.CategoryID;
+
+-- Use a left join to list all suppliers and any products they supply
+-- This will also print out suppliers who dont supply anything
+SELECT Suppliers.SupplierName, Products.ProductName
+FROM Suppliers
+LEFT JOIN Products ON Suppliers.SupplierID = Products.SupplierID;
+
+-- Full Outer Join
+SELECT Products.ProductName, Suppliers.SupplierName
+FROM Products
+LEFT JOIN Suppliers ON Products.SupplierID = Suppliers.SupplierID
+UNION
+SELECT Products.ProductName, Suppliers.SupplierName
+FROM Products
+RIGHT JOIN Suppliers ON Products.SupplierID = Supplier.SupplierID;
+
+-- use HAVING clause to find all categories wiht more than 10 products in stock
+SELECT Categories.CataegoryName, COUNT(*) AS ProductCount
+FROM Products
+INNER JOIN Categories ON Products.CategoryID = Categories.CategoryID
+GROUP BY Categories.CategoryName
+HAVING Count(*) > 10;
