@@ -1,6 +1,6 @@
 CREATE DATABASE IF NOT EXISTS electronicsDB;
 USE electronicsDB;
--- note
+
 CREATE TABLE Suppliers(
 	SupplierID INT PRIMARY KEY AUTO_INCREMENT,
 	SupplierName VARCHAR(50) NOT NULL,
@@ -34,10 +34,8 @@ CREATE TABLE Categories(
 CREATE TABLE Orders(
 	OrderID INT PRIMARY KEY AUTO_INCREMENT,
 	CustomerID INT NOT NULL,
-	OrderAmount INT NOT NULL,
 	OrderDate DATE NOT NULL,
 	OrderTime TIME NOT NULL,
-	OrderAmount DECIMAL(10,2),
 	FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID)
 );
 
@@ -49,3 +47,204 @@ CREATE TABLE OrderDetails (
 	FOREIGN KEY (OrderID) REFERENCES Orders(OrderID),
 	FOREIGN KEY (ProductID) REFERENCES Products(ProductID)
 );
+
+Elisey Voichishin
+CS204 Database Programming
+Study.com
+9/27/26
+
+There are multiple forms of normalization,
+the default and standard being the third form of normalization.
+Each form of normalization is another step
+towards a cleaner and easier database to maintain.
+It becomes easier because you won't have to deal with
+updating the same information across many tables,
+or with fields in your tables that are hectic and unorganized,
+and much more.
+Each form of normalization keeps all previous rules
+and adds another rule on top of it.
+
+The first form of normalization
+is for each field to contain a single value.
+An example of someone breaking this rule
+would be to insert multiple phone numbers
+under the same "phone" field for the same individual / record.
+
+The second form of normalization
+is for every single other field rely on the whole key
+and not just a part of it.
+This means if, for example, we have our OrderDetails table
+with a composite key of OrderID and ProductID,
+but decided to also have the product's name on it,
+then the name would only need to know the ProductID
+and not the OrderID
+resulting in a partial dependency breaking 2nf.
+
+The third form of normalization
+is for every field only rely on the primary key
+and nothing but the primary key,
+ensuring that there are no transitive dependencies.
+If B relies on A, and C relies on B,
+that is an example of this transitive dependency.
+
+The design in the ERD follows the third form of normalization.
+It adheres to the rules of the first form of normalization
+because there are no repeating fields or lists in the values.
+Each field has one value for each entry.
+It follows the second form of normalization
+because all fields solely rely on the candidate or primary key.
+For example, in my OrderDetails table
+we have a dual primary key, or a composite key.
+The Quantity represents how many of said product the customer wants,
+and it is fully reliant on which order was placed via OrderID
+and which product via ProductID.
+It adheres to the third form of normalization
+because there are no transitive properties.
+Every single value that is not the primary key,
+fully relies on the primary key ensuring 3nf.
+
+Denormalization is reintroducing some redundancy into the table
+to get faster queries.
+You sacrifice some structure to speed up queries
+or to skip some joins that would take longer.
+An example of denormalization for this database
+would be to keep OrderAmount that I took out.
+I took it out because it is reliant on 2 fields,
+such as quantity and the price of the product.
+If we kept it, we would get faster queries
+by not needing to calculate the order amount every time,
+but sacrifice structure.
+
+Sources:
+
+GeeksforGeeks. "Denormalization in Databases."
+GeeksforGeeks, 18 Feb. 2018,
+https://www.geeksforgeeks.org/dbms/denormalization-in-databases/.
+Accessed 27 Sept. 2026.
+
+Wikipedia Contributors. "Database Normalization."
+Wikipedia, Wikimedia Foundation, 17 May 2019,
+https://en.wikipedia.org/wiki/Database_normalization.
+Accessed 27 Sept. 2026.
+
+
+PART 2: SQL IMPLEMENTATION
+CREATE DATABASE IF NOT EXISTS electronicsDB;
+USE electronicsDB;
+
+CREATE TABLE Suppliers(
+	SupplierID INT PRIMARY KEY AUTO_INCREMENT,
+	SupplierName VARCHAR(50) NOT NULL,
+	Phone VARCHAR(20),
+	Email VARCHAR(60) UNIQUE
+);
+
+CREATE TABLE Products(
+	ProductID INT PRIMARY KEY AUTO_INCREMENT,
+	ProductName VARCHAR(100) NOT NULL,
+	UnitPrice DECIMAL(10,2),
+	Qoh INT DEFAULT 0,
+	CategoryID INT,
+	SupplierID INT,
+	FOREIGN KEY (CategoryID) REFERENCES Categories(CategoryID),
+	FOREIGN KEY (SupplierID) REFERENCES Suppliers(SupplierID)
+);
+
+CREATE TABLE Customers (
+	CustomerID INT PRIMARY KEY AUTO_INCREMENT,
+	CustomerName VARCHAR(100) NOT NULL,
+	Phone VARCHAR(20),
+	Email VARCHAR(60)
+);
+
+CREATE TABLE Categories(
+	CategoryID INT PRIMARY KEY AUTO_INCREMENT,
+	CategoryName VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE Orders(
+	OrderID INT PRIMARY KEY AUTO_INCREMENT,
+	CustomerID INT NOT NULL,
+	OrderDate DATE NOT NULL,
+	OrderTime TIME NOT NULL,
+	FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID)
+);
+
+CREATE TABLE OrderDetails (
+	OrderID INT,
+	ProductID INT,
+	Quantity INT NOT NULL,
+	PRIMARY KEY (OrderID, ProductID),
+	FOREIGN KEY (OrderID) REFERENCES Orders(OrderID),
+	FOREIGN KEY (ProductID) REFERENCES Products(ProductID)
+);
+
+2.2 populating the tables with at least 5 inserts per table
+-- I will be making up a majority of the information of these inserts
+-- As i was already done with most of the Insert commands, i remembered
+-- that this is supposed to be example data for an electronics company
+-- At the very least, I am showing its application
+INSERT INTO Suppliers (SupplierName, Phone, Email)
+	VALUES ("Dollar Tree Logistics", "+1-877-530-8733", "dltr@gmail.com");
+INSERT INTO Suppliers (SupplierName, Phone, Email)
+	VALUES ("Walmart", "1-142-091-0888", "WalmartSmile@gmail.com");
+INSERT INTO Suppliers (SupplierName, Phone, Email)
+	VALUES ("Albertsons", "1-360-098-1293", "KrogerAlbertsons@gmail.com");
+INSERT INTO Suppliers (SupplierName, Phone, Email) 
+	VALUES ("Fred Meyers", "1-723-083-8875", "KrogerFredMeyers@hotmail.com");
+INSERT INTO Suppliers (SupplierName, Phone, Email)
+	VALUES ("Temu", "87-022-137-0931", "temu@lemonmail.com");
+
+INSERT INTO Categories(CategoryName) VALUES ("Meats");
+INSERT INTO Categories(CategoryName) VALUES ("Tech");
+INSERT INTO Categories(CategoryName) VALUES ("Snacks");
+INSERT INTO Categories(CategoryName) VALUES ("Amenities");
+INSERT INTO Categories(CategoryName) VALUES ("Material");
+
+INSERT INTO Products (ProductName, UnitPrice, Qoh, CategoryID, SupplierID) 
+	VALUES ("Watermelon", 4.99, 30, 3,2);
+INSERT INTO Products (ProductName, UnitPrice, Qoh, CategoryID, SupplierID) 
+	VALUES ("Logitech Keyboard", 79.95, 8, 2, 5);
+INSERT INTO Products (ProductName, UnitPrice, Qoh, CategoryID, SupplierID) 
+	VALUES ("Sirloin Steak", 48.37, 16, 1, 4);
+INSERT INTO Products (ProductName, UnitPrice, Qoh, CategoryID, SupplierID) 
+	VALUES ("Rice Cakes", 3.99, 20, 3, 4);
+INSERT INTO Products (ProductName, UnitPrice, Qoh, CategoryID, SupplierID) 
+	VALUES ("White Monsters", 1.25, 40, 3, 1);
+
+INSERT INTO Customers (CustomerName, Phone, Email) 
+	VALUES ("Elisey Voichishin","360-132-1321","anonymousmail@gmail.com");
+INSERT INTO Customers (CustomerName, Phone, Email) 
+	VALUES ("Russ","131-124-1561","someotheremail@gmail.com");
+INSERT INTO Customers (CustomerName, Phone, Email) 
+	VALUES ("Poppy","091-913-8512","toplane@hotmail.com");
+INSERT INTO Customers (CustomerName, Phone, Email) 
+	VALUES ("Wukong","000-000-0141","monkeyking@outlook.com");
+INSERT INTO Customers (CustomerName, Phone, Email) 
+	VALUES ("Yoda","132-123-1231","palpat1n3h8ter@yahoo.com");
+
+INSERT INTO Orders(CustomerID, OrderDate, OrderTime)
+	VALUES (1, "2026-09-27", "17:53:27");
+INSERT INTO Orders(CustomerID, OrderDate, OrderTime)
+	VALUES (4, "2024-05-14", "01:03:04");
+INSERT INTO Orders(CustomerID, OrderDate, OrderTime)
+	VALUES (5, "2008-06-16", "04:05:02");
+INSERT INTO Orders(CustomerID, OrderDate, OrderTime)
+	VALUES (2, "2025-02-04", "02:24:27");
+INSERT INTO Orders(CustomerID, OrderDate, OrderTime)
+	VALUES (3, "2016-05-28", "04:05:32");
+
+INSERT INTO OrderDetails(OrderID, ProductID, Quantity)
+	VALUES (1,3,5);
+INSERT INTO OrderDetails(OrderID, ProductID, Quantity)
+	VALUES (1,2,2);
+INSERT INTO OrderDetails(OrderID, ProductID, Quantity)
+	VALUES (1,5,10);
+INSERT INTO OrderDetails(OrderID, ProductID, Quantity)
+	VALUES (2,1,2);
+INSERT INTO OrderDetails(OrderID, ProductID, Quantity)
+	VALUES (5,4,100);
+
+DELETE FROM OrderDetails WHERE OrderID = 1;
+
+UPDATE Customers SET CustomerName = "Son Wukong" WHERE CustomerID = 4;
