@@ -10,16 +10,24 @@ SELECT ProductName, CategoryID, UnitPrice, Qoh FROM Products;
 SELECT * FROM Products WHERE Qoh = 0;
 
 -- Display products priced between $100 and $500
-SELECT * FROM Products WHERE UnitPrice > 100 AND UnitPrice < 500;
+-- Revision 1: changed "UnitPrice > 100 AND UnitPrice < 500" to 
+-- "BETWEEN 100 AND 500". This changed was recommended by the Grader
+-- Using BETWEEN instead of the mathematical signs improves readability
+-- and also effect because theres a lower chance of me missing numbers. 
+SELECT * FROM Products WHERE UnitPrice BETWEEN 100 AND 500;
 
 -- Show the total number of products group by category
 -- I am selecting the categoryName and putting a count on each record
 -- and when it get printed out it will show me category and then
 -- totalProducts, and it will print out totals per categoryName. 
-SELECT CategoryName, COUNT(*) AS totalProducts FROM Products GROUP BY CategoryName; 
+-- Revision 1: changed from CategoryName to CategoryID, since Products
+-- does not have CategoryName :/
+SELECT CategoryID, COUNT(*) AS totalProducts FROM Products GROUP BY CategoryID; 
 
 -- Print average price of products per category using GROUP BY
-SELECT CategoryName, AVG(UnitPrice) AS avgPrice FROM Products GROUP BY CategoryName;
+-- AVG() returns the average of all entries for the column provided
+-- Then we group by the category name 
+SELECT CategoryID, AVG(UnitPrice) AS avgPrice FROM Products GROUP BY CategoryID;
 
 -- PART 2
 
@@ -27,7 +35,7 @@ SELECT CategoryName, AVG(UnitPrice) AS avgPrice FROM Products GROUP BY CategoryN
 -- and contact details.
 SELECT Products.ProductName, Suppliers.SupplierName, Suppliers.Phone, Suppliers.Email
 FROM Products 
-INNER JOIN Suppliers ON Suppliers.SupplierID = Product.SupplierID;
+INNER JOIN Suppliers ON Suppliers.SupplierID = Products.SupplierID;
 
 -- join products categories and Orders to display productName, categoryName,
 -- quantitySold, and date of sale
@@ -46,17 +54,24 @@ FROM Suppliers
 LEFT JOIN Products ON Suppliers.SupplierID = Products.SupplierID;
 
 -- Full Outer Join
+-- Full Outer Join can be implemented by having a Left join unioned
+-- with a right join. 
 SELECT Products.ProductName, Suppliers.SupplierName
 FROM Products
 LEFT JOIN Suppliers ON Products.SupplierID = Suppliers.SupplierID
 UNION
 SELECT Products.ProductName, Suppliers.SupplierName
 FROM Products
-RIGHT JOIN Suppliers ON Products.SupplierID = Supplier.SupplierID;
+RIGHT JOIN Suppliers ON Products.SupplierID = Suppliers.SupplierID;
 
--- use HAVING clause to find all categories wiht more than 10 products in stock
-SELECT Categories.CataegoryName, COUNT(*) AS ProductCount
+-- use a HAVING clause to find all categories with more than 10 products in stock
+-- Originally, I counted all rows and had a counter then group by each category.
+-- The grader has instructed to first get rid of my spelling mistakes. That has been
+-- fixed. Then to calculate the total sum of Qoh instead of counting. 
+-- I had forgotten that Qoh existed.
+SELECT Categories.CategoryName, SUM(Products.Qoh) AS TotalStock
 FROM Products
 INNER JOIN Categories ON Products.CategoryID = Categories.CategoryID
 GROUP BY Categories.CategoryName
-HAVING Count(*) > 10;
+HAVING SUM(Products.Qoh) > 10;
+
