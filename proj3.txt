@@ -1,0 +1,11 @@
+-- Elisey Voichishin
+-- 9/28/26
+-- CS206 Database Programming
+
+-- Write an SQL Statement that calculates total sales by product
+-- Category using an aggregate function
+
+
+-- Write an SQL Statement that formats product anmes and supplier 
+-- contact information using string functions
+
