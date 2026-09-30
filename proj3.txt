@@ -4,8 +4,26 @@
 
 -- Write an SQL Statement that calculates total sales by product
 -- Category using an aggregate function
+-- Here we are selecting by CategoryName, adding the quantity of 
+-- Each product's orders and multiplying it by the price to get total.
+SELECT Categories.CategoryName, SUM(OrderDetails.Quantity * Products.UnitPrice) 
+AS TotalSales
+FROM OrderDetails
+INNER JOIN Products ON OrderDetails.ProductID = Products.ProductID
+INNER JOIN Categories On Products.CategoryID = Categories.CategoryID
+GROUP BY Categories.CategoryName
+ORDER BY TotalSales DESC;
 
-
--- Write an SQL Statement that formats product anmes and supplier 
+-- Write an SQL Statement that formats product names and supplier 
 -- contact information using string functions
+SELECT CONCAT(Products.ProductName, '(', Products.CategoryID, ')') AS ProductLabel,
+	CONCAT(Suppliers.SupplierName, '-', Suppliers.Phone,
+	'-', Suppliers.Email) AS SupplierContact
+FROM Products
+INNER JOIN Suppliers ON Products.SupplierID = Suppliers.SupplierID;
 
+-- write an sql statement that lists orders by purchase month in desc order
+-- using date/time functions
+SELECT Orders.OrderID, Orders.OrderDate, MONTH(Orders.OrderDate) AS PurchaseMonth
+FROM Orders
+ORDER BY MONTH(Orders.OrderDate) DESC;
